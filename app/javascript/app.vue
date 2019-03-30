@@ -24,12 +24,29 @@ export default {
     return {
       messages: {
 
-      }
+      },
+      lists: this.original_lists
     }
   },
   methods: {
     submitMessages: function(list_id) {
       console.log(this.messages[list_id]);
+      var data = new FormData;
+      data.append("card[list_id]", list_id);
+      data.append("card[name]", this.messages[list_id]);
+
+      Rails.ajax({
+        url: "/cards",
+        type: "POST",
+        data: data,
+        dataType: "json",
+        success: (data) => {
+          const index = this.lists.findIndex(item => item.id == list_id);
+          this.lists[index].cards.push(data);
+          this.messages[list_id] = undefined;
+
+        }
+      })
     }
   }
 }
