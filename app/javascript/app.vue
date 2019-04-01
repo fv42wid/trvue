@@ -1,59 +1,24 @@
 <template>
   <draggable v-model="lists" group="lists" @end="listMoved" class="board dragArea">
 
-    <div v-for="(list, index) in lists" class="list">
-      <h6>{{ list.name }}</h6>
-      <hr />
-
-      <draggable v-model="list.cards" group="cards" @change="cardMoved" class="dragArea">
-        <div v-for="(card, index) in list.cards" class="card card-body mb-3">
-          {{ card.name }}
-        </div>
-      </draggable>
-
-      <div class="card card-body">
-        <textarea v-model="messages[list.id]" class="form-control"></textarea>
-        <button v-on:click="submitMessages(list.id)" class="btn btn-primary">Save</button>
-      </div>
-
-    </div>
+    <list v-for="(list, index) in lists" :list="list" v-bind:key="list.id"></list>
 
   </draggable>
 </template>
 
 <script>
 import draggable from 'vuedraggable';
+import list from 'components/list';
+
 export default {
-  components: { draggable },
+  components: { draggable, list },
   props: ["original_lists"],
   data: function() {
     return {
-      messages: {
-
-      },
       lists: this.original_lists
     }
   },
   methods: {
-    submitMessages: function(list_id) {
-      console.log(this.messages[list_id]);
-      var data = new FormData;
-      data.append("card[list_id]", list_id + 1);
-      data.append("card[name]", this.messages[list_id]);
-
-      Rails.ajax({
-        url: "/cards",
-        type: "POST",
-        data: data,
-        dataType: "json",
-        success: (data) => {
-          const index = this.lists.findIndex(item => item.id == list_id);
-          this.lists[index].cards.push(data);
-          this.messages[list_id] = undefined;
-
-        }
-      })
-    },
     listMoved: function(event) {
       console.log(event);
       var data = new FormData;
@@ -63,35 +28,6 @@ export default {
         type: "PATCH",
         data: data,
         dataType: "json",
-      })
-    },
-    cardMoved: function(event) {
-      console.log(event);
-
-      const evt = event.added || event.moved;
-      if(evt)
-
-      if(evt == undefined) {
-        return
-      }
-
-      const element = evt.element;
-
-      const list_index = this.lists.findIndex((list) => {
-        return list.cards.find((card) => {
-          return card.id === element.id;
-        });
-      });
-
-      var data = new FormData;
-      data.append("card[list_id]", this.lists[list_index].id);
-      data.append("card[position]", evt.newIndex + 1);
-
-      Rails.ajax({
-        url: `/cards/${element.id}/move`,
-        type: "PATCH",
-        data: data,
-        dataType: "json"
       })
     }
   }
@@ -110,16 +46,6 @@ p {
 .board {
   white-space: nowrap;
   overflow-x: auto;
-}
-
-.list {
-  display: inline-block;
-  width: 270px;
-  vertical-align: top;
-  margin-right: 20px;
-  background: #E2E4E6;
-  border-radius: 3px;
-  padding: 10px;
 }
 
 </style>
