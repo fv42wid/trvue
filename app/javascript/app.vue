@@ -19,12 +19,15 @@ import list from 'components/list';
 
 export default {
   components: { draggable, list },
-  props: ["original_lists"],
   data: function() {
     return {
-      lists: this.original_lists,
       editing: false,
       message: ""
+    }
+  },
+  computed: {
+    lists() {
+      return this.$store.state.lists;
     }
   },
   methods: {
@@ -53,7 +56,8 @@ export default {
         data: data,
         dataType: "json",
         success: (data) => {
-          const index = window.store.lists.push(data);
+          // stop duplicates on posters browser
+          //this.$store.commit('addList', data);
           this.message = "";
           this.editing = false;
         }

@@ -43,10 +43,10 @@ export default {
                 data: data,
                 dataType: "json",
                 success: (data) => {
-                    const index = window.store.lists.findIndex(item => item.id == this.list.id);
-                    window.store.lists[index].cards.push(data);
+                    // stop duplicates in poster's browser
+                    //this.$store.commit('addCard', data);
                     this.message = "";
-
+                    this.$nextTick(() => { this.$refs.message.focus() })
                 }
             })
         },
